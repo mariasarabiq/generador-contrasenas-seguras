@@ -116,7 +116,7 @@ def evaluar_contrasena(contrasena):
 # --- Interfaz Web con Streamlit ---
 st.title("Programa de contraseña segura")
 st.write(
-    "Este programa te ayuda a generar contraseñas seguras y a verificar el nivel de seguridad de tus contraseñas actuales."
+    "Este programa te ayuda a generar contraseñas seguras y a verificar el nivel de seguridad de tus contraseñas actuales. "
 )
 
 st.markdown("---")
@@ -165,3 +165,8 @@ if contrasena_a_probar:
         st.write("Para cumplir con los requisitos, te hace falta lo siguiente:")
         for error in errores:
             st.write(f"❌ {error}")
+
+st.markdown("---")
+st.write(
+    "María Guadalupe Sarabia Velarde "
+)
