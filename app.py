@@ -173,5 +173,7 @@ if boton_evaluar:
             st.write(f"❌ {error}")
 
 st.markdown("---")
-st.writer("María Guadalupe Sarabia Velarde")
+st.write(
+    "María Guadalupe Sarabia Velarde"
+)
 
