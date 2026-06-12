@@ -14,7 +14,6 @@ SUSTITUCIONES = {
     "t": ["7", "+"],
 }
 
-
 def transformar_palabra(palabra):
     """Mezcla y reemplaza letras de una palabra con símbolos y números."""
     resultado = ""
@@ -114,30 +113,34 @@ def evaluar_contrasena(contrasena):
 
 
 # --- Interfaz Web con Streamlit ---
-st.title("Programa de contraseña segura")
+st.title("🛡️ Portal de Seguridad: Contraseñas Seguras")
 st.write(
-    "Este programa te ayuda a generar contraseñas seguras y a verificar el nivel de seguridad de tus contraseñas actuales. "
+    "Esta plataforma te ayuda a generar contraseñas robustas y a verificar el nivel de seguridad de tus claves actuales."
 )
 
 st.markdown("---")
 
 # Sección 1: Generador de contraseñas
-st.header("Generador de contraseñas seguras")
+st.header("1. Generador de Contraseñas Seguras")
 palabra_usuario = st.text_input(
     "Introduce una palabra base (puede ser una palabra común, un nombre o un concepto):",
-    placeholder="Ejemplo: caballo",
+    placeholder="Ejemplo: la maria",
     key="entrada_palabra_base",
 )
 
-if palabra_usuario:
-    palabra_limpia = palabra_usuario.strip()
+# Se agrega el botón para generar las contraseñas
+boton_generar = st.button("Generar opciones")
+
+if boton_generar:
+    # Eliminamos los espacios en blanco de la palabra ingresada
+    palabra_limpia = palabra_usuario.strip().replace(" ", "")
+    
     if len(palabra_limpia) == 0:
         st.warning("Por favor, escribe una palabra válida.")
     else:
         st.subheader("Tus 3 opciones sugeridas:")
         opciones_generadas = generar_contrasenas(palabra_limpia)
 
-        # Usamos bloques de código estáticos para mostrar las contraseñas sin romper la reactividad
         for i, opcion in enumerate(opciones_generadas, 1):
             st.write(f"**Opción {i}:**")
             st.code(opcion, language="text")
@@ -145,7 +148,7 @@ if palabra_usuario:
 st.markdown("---")
 
 # Sección 2: Validador de contraseñas
-st.header("Validador de contraseñas")
+st.header("2. Analizador y Validador de Contraseñas")
 contrasena_a_probar = st.text_input(
     "Introduce la contraseña que deseas evaluar:",
     type="password",
@@ -153,7 +156,10 @@ contrasena_a_probar = st.text_input(
     key="entrada_contrasena_evaluar",
 )
 
-if contrasena_a_probar:
+# Se agrega el botón para evaluar la contraseña
+boton_evaluar = st.button("Evaluar contraseña")
+
+if boton_evaluar:
     errores = evaluar_contrasena(contrasena_a_probar)
 
     if not errores:
@@ -165,8 +171,3 @@ if contrasena_a_probar:
         st.write("Para cumplir con los requisitos, te hace falta lo siguiente:")
         for error in errores:
             st.write(f"❌ {error}")
-
-st.markdown("---")
-st.write(
-    "María Guadalupe Sarabia Velarde "
-)
