@@ -113,7 +113,7 @@ def evaluar_contrasena(contrasena):
 
 
 # --- Interfaz Web con Streamlit ---
-st.title("🛡️ Portal de Seguridad: Contraseñas Seguras")
+st.title("Portal de seguridad: contraseñas seguras")
 st.write(
     "Esta plataforma te ayuda a generar contraseñas robustas y a verificar el nivel de seguridad de tus claves actuales."
 )
@@ -121,7 +121,7 @@ st.write(
 st.markdown("---")
 
 # Sección 1: Generador de contraseñas
-st.header("1. Generador de Contraseñas Seguras")
+st.header("Generador de contraseñas seguras")
 palabra_usuario = st.text_input(
     "Introduce una palabra base (puede ser una palabra común, un nombre o un concepto):",
     placeholder="Ejemplo: la maria",
@@ -148,7 +148,7 @@ if boton_generar:
 st.markdown("---")
 
 # Sección 2: Validador de contraseñas
-st.header("2. Analizador y Validador de Contraseñas")
+st.header("Analizador y validador de contraseñas")
 contrasena_a_probar = st.text_input(
     "Introduce la contraseña que deseas evaluar:",
     type="password",
@@ -171,3 +171,7 @@ if boton_evaluar:
         st.write("Para cumplir con los requisitos, te hace falta lo siguiente:")
         for error in errores:
             st.write(f"❌ {error}")
+
+st.markdown("---")
+st.header("María Guadalupe Sarabia Velarde")
+
