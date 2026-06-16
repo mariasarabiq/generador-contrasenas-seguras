@@ -59,7 +59,7 @@ def generar_contrasenas(palabra_base):
 
 
 # --- Interfaz Web con Streamlit ---
-st.title("Portal de Seguridad: Contraseñas Seguras")
+st.title("Programa de contraseña segura")
 st.write(
     "Esta plataforma te ayuda a generar contraseñas robustas y a verificar el nivel de seguridad de tus claves actuales en tiempo real."
 )
@@ -67,10 +67,10 @@ st.write(
 st.markdown("---")
 
 # Sección 1: Generador de contraseñas
-st.header("1. Generador de Contraseñas Seguras")
+st.header("1. Generador de contraseñas seguras")
 palabra_usuario = st.text_input(
     "Introduce una palabra base (puede ser una palabra común o nombre):",
-    placeholder="Ejemplo: la maria",
+    placeholder="Ejemplo: el venado",
     key="entrada_palabra_base",
 )
 
@@ -92,7 +92,7 @@ if boton_generar:
 st.markdown("---")
 
 # Sección 2: Validador de contraseñas reactivo
-st.header("2. Analizador y Validador Reactivo")
+st.header("2. Analizador y validador de contraseña")
 contrasena_a_probar = st.text_input(
     "Introduce la contraseña que deseas evaluar:",
     type="password",
