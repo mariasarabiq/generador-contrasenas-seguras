@@ -2,7 +2,6 @@ import random
 import re
 import string
 import streamlit as st
-from st_keyup import st_keyup
 
 # Diccionario de sustituciones comunes para transformar palabras (Leet speak)
 SUSTITUCIONES = {
@@ -14,8 +13,6 @@ SUSTITUCIONES = {
     "s": ["5", "$"],
     "t": ["7", "+"],
 }
-
-
 def transformar_palabra(palabra):
     """Mezcla y reemplaza letras de una palabra con símbolos y números."""
     resultado = ""
@@ -62,7 +59,7 @@ def generar_contrasenas(palabra_base):
 
 
 # --- Interfaz Web con Streamlit ---
-st.title("🛡️ Portal de Seguridad: Contraseñas Seguras")
+st.title("Portal de Seguridad: Contraseñas Seguras")
 st.write(
     "Esta plataforma te ayuda a generar contraseñas robustas y a verificar el nivel de seguridad de tus claves actuales en tiempo real."
 )
@@ -95,23 +92,13 @@ if boton_generar:
 st.markdown("---")
 
 # Sección 2: Validador de contraseñas reactivo
-st.header("2. Analizador y Validador Reactivo en Vivo")
-
-# Agregamos una opción para decidir si se oculta o se muestra el texto
-mostrar_contrasena = st.checkbox("👁️ Mostrar contraseña")
-tipo_entrada = "default" if mostrar_contrasena else "password"
-
-# Usamos st_keyup con el tipo de entrada dinámico
-contrasena_a_probar = st_keyup(
+st.header("2. Analizador y Validador Reactivo")
+contrasena_a_probar = st.text_input(
     "Introduce la contraseña que deseas evaluar:",
-    type=tipo_entrada,
-    placeholder="Escribe tu contraseña aquí...",
+    type="password",
+    placeholder="Escribe tu contraseña y presiona Enter o da clic afuera...",
     key="entrada_contrasena_evaluar",
 )
-
-# st_keyup devuelve 'None' si la caja está vacía. Lo forzamos a texto para evitar errores de lectura.
-if contrasena_a_probar is None:
-    contrasena_a_probar = ""
 
 # Variables de estado para la reactividad
 longitud_ok = len(contrasena_a_probar) >= 12
