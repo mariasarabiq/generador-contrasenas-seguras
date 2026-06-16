@@ -2,6 +2,7 @@ import random
 import re
 import string
 import streamlit as st
+from st_keyup import st_keyup
 
 # Diccionario de sustituciones comunes para transformar palabras (Leet speak)
 SUSTITUCIONES = {
@@ -94,13 +95,19 @@ if boton_generar:
 st.markdown("---")
 
 # Sección 2: Validador de contraseñas reactivo
-st.header("2. Analizador y Validador Reactivo")
-contrasena_a_probar = st.text_input(
+st.header("2. Analizador y Validador Reactivo en Vivo")
+
+# IMPORTANTE: Usamos st_keyup para que reaccione instantáneamente con cada tecla
+contrasena_a_probar = st_keyup(
     "Introduce la contraseña que deseas evaluar:",
     type="password",
-    placeholder="Escribe tu contraseña y presiona Enter...",
+    placeholder="Escribe tu contraseña aquí...",
     key="entrada_contrasena_evaluar",
 )
+
+# st_keyup devuelve 'None' si la caja está vacía. Lo forzamos a texto para evitar errores de lectura.
+if contrasena_a_probar is None:
+    contrasena_a_probar = ""
 
 # Variables de estado para la reactividad
 longitud_ok = len(contrasena_a_probar) >= 12
@@ -136,7 +143,6 @@ boton_evaluar = st.button(
 
 if boton_evaluar:
     st.success("¡Felicidades! Tu contraseña es completamente segura y ha sido validada.")
-
 st.markdown("---")
 st.write(
     "María Guadalupe Sarabia Velarde"
