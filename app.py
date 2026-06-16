@@ -97,10 +97,14 @@ st.markdown("---")
 # Sección 2: Validador de contraseñas reactivo
 st.header("2. Analizador y Validador Reactivo en Vivo")
 
-# IMPORTANTE: Usamos st_keyup para que reaccione instantáneamente con cada tecla
+# Agregamos una opción para decidir si se oculta o se muestra el texto
+mostrar_contrasena = st.checkbox("👁️ Mostrar contraseña")
+tipo_entrada = "default" if mostrar_contrasena else "password"
+
+# Usamos st_keyup con el tipo de entrada dinámico
 contrasena_a_probar = st_keyup(
     "Introduce la contraseña que deseas evaluar:",
-    type="password",
+    type=tipo_entrada,
     placeholder="Escribe tu contraseña aquí...",
     key="entrada_contrasena_evaluar",
 )
