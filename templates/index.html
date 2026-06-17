@@ -8,19 +8,56 @@
         body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; background-color: #f9f9f9; color: #333; }
         .caja { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
         input[type="text"], input[type="password"] { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-        button { background-color: #0056b3; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        button { background-color: #0056b3; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;}
         button:disabled { background-color: #cccccc; cursor: not-allowed; }
         ul { list-style-type: none; padding: 0; }
-        li { margin: 8px 0; }
-        .codigo { background: #eee; padding: 10px; border-radius: 4px; font-family: monospace; display: block; margin: 5px 0; }
+        li { margin: 8px 0; font-size: 0.95em; }
+        .codigo { background: #eee; padding: 10px; border-radius: 4px; font-family: monospace; display: block; margin: 5px 0; border: 1px solid #ddd;}
         .alerta { color: red; font-weight: bold; }
         .exito { color: green; font-weight: bold; }
-        .opcion-ver { margin-bottom: 15px; font-size: 0.9em; color: #555; }
+        
+        /* NUEVO CSS PARA EL OJITO ADENTRO */
+        .contenedor-input-password {
+            position: relative; /* Necesario para posicionar el icono adentro */
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        /* Estilo específico para el input de contraseña dentro del contenedor */
+        .input-con-icono {
+            width: 100%;
+            padding: 10px;
+            padding-right: 40px; /* Espacio extra a la derecha para que el texto no tape el icono */
+            margin: 0; /* Quitamos el margen nativo porque lo maneja el contenedor */
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* Estilo para el icono del ojito */
+        .icono-ver-password {
+            position: absolute;
+            right: 10px; /* Distancia desde la derecha del input */
+            top: 50%; /* Centrado verticalmente */
+            transform: translateY(-50%); /* Ajuste fino del centrado */
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #777; /* Color gris suave por defecto */
+            z-index: 10; /* Asegura que esté arriba del input */
+        }
+        
+        .icono-ver-password:hover {
+            color: #333; /* Cambia a color más oscuro al pasar el mouse */
+        }
     </style>
 </head>
 <body>
 
-    <h1>Portal de Seguridad</h1>
+    <h1>🛡️ Portal de Seguridad</h1>
     <p>María Guadalupe Sarabia Velarde</p>
 
     <div class="caja">
@@ -34,12 +71,20 @@
     <div class="caja">
         <h2>2. Analizador y validador reactivo</h2>
         
-        <div class="opcion-ver">
-            <input type="checkbox" id="checkVerContrasena" onchange="toggleVisibilidad()"> 
-            <label for="checkVerContrasena">👁️ Mostrar contraseña</label>
+        <div class="contenedor-input-password">
+            <input type="password" id="contrasenaEvaluar" class="input-con-icono" maxlength="14" placeholder="Escribe tu contraseña aquí..." oninput="validarContrasena()">
+            
+            <span class="icono-ver-password" id="btnToggleOjo" onclick="toggleVisibilidad()">
+                <svg id="svgOjoAbierto" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg id="svgOjoCerrado" style="display:none;" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+            </span>
         </div>
-
-        <input type="password" id="contrasenaEvaluar" maxlength="14" placeholder="Escribe tu contraseña aquí..." oninput="validarContrasena()">
         
         <h3>Requisitos de seguridad:</h3>
         <ul>
@@ -55,19 +100,26 @@
     </div>
 
     <script>
-        // Función para cambiar entre texto oculto (password) y texto visible (text)
+        // Función para cambiar la visibilidad de la contraseña y el icono
         function toggleVisibilidad() {
             const inputContrasena = document.getElementById("contrasenaEvaluar");
-            const checkbox = document.getElementById("checkVerContrasena");
+            const svgAbierto = document.getElementById("svgOjoAbierto");
+            const svgCerrado = document.getElementById("svgOjoCerrado");
             
-            if (checkbox.checked) {
+            // Si está en tipo password (oculto), lo cambiamos a text (visible) y mostramos ojo cerrado
+            if (inputContrasena.type === "password") {
                 inputContrasena.type = "text";
+                svgAbierto.style.display = "none";
+                svgCerrado.style.display = "block";
             } else {
+                // Si está en tipo text (visible), lo cambiamos a password (oculto) y mostramos ojo abierto
                 inputContrasena.type = "password";
+                svgAbierto.style.display = "block";
+                svgCerrado.style.display = "none";
             }
         }
 
-        // Función para enviar la palabra al backend de Python
+        // Función para enviar la palabra al backend de Python (sin cambios)
         async function generarOpciones() {
             const palabra = document.getElementById("palabraBase").value;
             const mensaje = document.getElementById("mensajeGenerador");
@@ -93,7 +145,7 @@
             }
         }
 
-        // Función que reacciona con cada letra que escribes (oninput)
+        // Función que reacciona con cada letra que escribes en vivo (oninput) (sin cambios)
         async function validarContrasena() {
             const contrasena = document.getElementById("contrasenaEvaluar").value;
 
