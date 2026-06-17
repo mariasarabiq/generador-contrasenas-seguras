@@ -8,50 +8,77 @@
         body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; background-color: #f9f9f9; color: #333; }
         .caja { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
         input[type="text"], input[type="password"] { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        
+        /* Estilos generales de botones */
         button { background-color: #0056b3; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;}
         button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        
         ul { list-style-type: none; padding: 0; }
         li { margin: 8px 0; font-size: 0.95em; }
-        .codigo { background: #eee; padding: 10px; border-radius: 4px; font-family: monospace; display: block; margin: 5px 0; border: 1px solid #ddd;}
         .alerta { color: red; font-weight: bold; }
         .exito { color: green; font-weight: bold; }
+        .opcion-ver { margin-bottom: 15px; font-size: 0.9em; color: #555; }
         
-        /* NUEVO CSS PARA EL OJITO ADENTRO */
+        /* NUEVO: Contenedor para la contraseña generada y su botón de copiar */
+        .contenedor-codigo { 
+            background: #eee; 
+            padding: 10px; 
+            border-radius: 4px; 
+            font-family: monospace; 
+            margin: 5px 0 15px 0; 
+            border: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between; /* Separa el texto del botón a los extremos */
+            align-items: center;
+        }
+
+        /* NUEVO: Estilo específico para el botón de copiar */
+        .btn-copiar {
+            background-color: transparent;
+            color: #0056b3;
+            border: 1px solid #0056b3;
+            padding: 5px 10px;
+            font-size: 0.85em;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-copiar:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+
+        /* Estilos del contenedor del ojito */
         .contenedor-input-password {
-            position: relative; /* Necesario para posicionar el icono adentro */
+            position: relative;
             width: 100%;
             margin: 10px 0;
         }
-
-        /* Estilo específico para el input de contraseña dentro del contenedor */
         .input-con-icono {
             width: 100%;
             padding: 10px;
-            padding-right: 40px; /* Espacio extra a la derecha para que el texto no tape el icono */
-            margin: 0; /* Quitamos el margen nativo porque lo maneja el contenedor */
+            padding-right: 40px;
+            margin: 0;
             box-sizing: border-box;
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-
-        /* Estilo para el icono del ojito */
         .icono-ver-password {
             position: absolute;
-            right: 10px; /* Distancia desde la derecha del input */
-            top: 50%; /* Centrado verticalmente */
-            transform: translateY(-50%); /* Ajuste fino del centrado */
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
             cursor: pointer;
             width: 20px;
             height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #777; /* Color gris suave por defecto */
-            z-index: 10; /* Asegura que esté arriba del input */
+            color: #777;
+            z-index: 10;
         }
-        
         .icono-ver-password:hover {
-            color: #333; /* Cambia a color más oscuro al pasar el mouse */
+            color: #333;
         }
     </style>
 </head>
@@ -73,7 +100,6 @@
         
         <div class="contenedor-input-password">
             <input type="password" id="contrasenaEvaluar" class="input-con-icono" maxlength="14" placeholder="Escribe tu contraseña aquí..." oninput="validarContrasena()">
-            
             <span class="icono-ver-password" id="btnToggleOjo" onclick="toggleVisibilidad()">
                 <svg id="svgOjoAbierto" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -100,26 +126,36 @@
     </div>
 
     <script>
-        // Función para cambiar la visibilidad de la contraseña y el icono
         function toggleVisibilidad() {
             const inputContrasena = document.getElementById("contrasenaEvaluar");
             const svgAbierto = document.getElementById("svgOjoAbierto");
             const svgCerrado = document.getElementById("svgOjoCerrado");
             
-            // Si está en tipo password (oculto), lo cambiamos a text (visible) y mostramos ojo cerrado
             if (inputContrasena.type === "password") {
                 inputContrasena.type = "text";
                 svgAbierto.style.display = "none";
                 svgCerrado.style.display = "block";
             } else {
-                // Si está en tipo text (visible), lo cambiamos a password (oculto) y mostramos ojo abierto
                 inputContrasena.type = "password";
                 svgAbierto.style.display = "block";
                 svgCerrado.style.display = "none";
             }
         }
 
-        // Función para enviar la palabra al backend de Python (sin cambios)
+        // NUEVO: Función para copiar el texto al portapapeles y cambiar el botón temporalmente
+        function copiarTexto(boton, texto) {
+            navigator.clipboard.writeText(texto).then(() => {
+                const textoOriginal = boton.innerHTML;
+                boton.innerHTML = "¡Copiado! ✅";
+                // Regresar el botón a la normalidad después de 2 segundos
+                setTimeout(() => {
+                    boton.innerHTML = textoOriginal;
+                }, 2000);
+            }).catch(err => {
+                console.error("Error al copiar: ", err);
+            });
+        }
+
         async function generarOpciones() {
             const palabra = document.getElementById("palabraBase").value;
             const mensaje = document.getElementById("mensajeGenerador");
@@ -139,13 +175,19 @@
             if (!respuesta.ok) {
                 mensaje.innerText = datos.error;
             } else {
+                // Modificamos la inyección de HTML para incluir el nuevo contenedor y el botón
                 datos.opciones.forEach((opcion, index) => {
-                    divResultados.innerHTML += `<strong>Opción ${index + 1}:</strong> <span class="codigo">${opcion}</span>`;
+                    divResultados.innerHTML += `
+                        <strong>Opción ${index + 1}:</strong> 
+                        <div class="contenedor-codigo">
+                            <span>${opcion}</span>
+                            <button class="btn-copiar" onclick="copiarTexto(this, '${opcion}')">Copiar 📋</button>
+                        </div>
+                    `;
                 });
             }
         }
 
-        // Función que reacciona con cada letra que escribes en vivo (oninput) (sin cambios)
         async function validarContrasena() {
             const contrasena = document.getElementById("contrasenaEvaluar").value;
 
@@ -157,7 +199,6 @@
 
             const datos = await respuesta.json();
 
-            // Actualizamos la interfaz gráfica al instante
             document.getElementById("req-longitud").innerHTML = `${datos.longitud ? '✅' : '❌'} Tener al menos 12 caracteres.`;
             document.getElementById("req-mayuscula").innerHTML = `${datos.mayuscula ? '✅' : '❌'} Incluir al menos una letra mayúscula (A-Z).`;
             document.getElementById("req-minuscula").innerHTML = `${datos.minuscula ? '✅' : '❌'} Incluir al menos una letra minúscula (a-z).`;
@@ -165,7 +206,6 @@
             document.getElementById("req-simbolo").innerHTML = `${datos.simbolo ? '✅' : '❌'} Incluir al menos un símbolo especial (!, @, #, etc.).`;
             document.getElementById("req-palabras").innerHTML = `${datos.palabras ? '✅' : '❌'} Evitar palabras comunes u obvias.`;
 
-            // Habilitamos o deshabilitamos el botón según el resultado
             document.getElementById("btnConfirmar").disabled = !datos.es_valida;
         }
     </script>
