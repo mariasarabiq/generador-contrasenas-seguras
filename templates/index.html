@@ -9,16 +9,14 @@
         .caja { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
         input[type="text"], input[type="password"] { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
         
-        /* Estilos generales de botones */
         button { background-color: #0056b3; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;}
         button:disabled { background-color: #cccccc; cursor: not-allowed; }
         
         ul { list-style-type: none; padding: 0; }
         li { margin: 8px 0; font-size: 0.95em; }
         .alerta { color: red; font-weight: bold; }
-        .exito { color: green; font-weight: bold; }
+        .exito { color: green; font-weight: bold; text-align: center; margin-top: 15px; }
         
-        /* NUEVO: Estilo para las instrucciones debajo de los títulos */
         .instruccion { font-size: 0.9em; color: #666; margin-top: -10px; margin-bottom: 15px; }
         
         .contenedor-codigo { 
@@ -83,12 +81,12 @@
 </head>
 <body>
 
-    <h1>Programa de contraseña segura</h1>
+    <h1>🛡️ Portal de Seguridad</h1>
     <p>María Guadalupe Sarabia Velarde</p>
 
     <div class="caja">
-        <h2>Generador de contraseñas seguras</h2>
-       <p class="instruccion">Introduce una palabra, número o frase base (máximo 50 caracteres).</p>
+        <h2>1. Generador de contraseñas seguras</h2>
+        <p class="instruccion">Introduce una palabra, número o frase base (máximo 50 caracteres).</p>
         
         <input type="text" id="palabraBase" maxlength="50" placeholder="Ejemplo: el venado 2026...">
         <button onclick="generarOpciones()">Generar opciones</button>
@@ -97,7 +95,7 @@
     </div>
 
     <div class="caja">
-        <h2>2Analizador y validador de contraseñas</h2>
+        <h2>2. Analizador y validador reactivo</h2>
         <p class="instruccion">Nota: Solo puedes ingresar hasta 14 caracteres en este campo.</p>
         
         <div class="contenedor-input-password">
@@ -124,7 +122,9 @@
             <li id="req-palabras">❌ Evitar palabras comunes u obvias.</li>
         </ul>
 
-        <button id="btnConfirmar" disabled onclick="alert('¡Contraseña guardada con éxito!')">Confirmar y guardar contraseña</button>
+        <button id="btnConfirmar" disabled onclick="mostrarExito()">Confirmar y guardar contraseña</button>
+        
+        <p id="mensajeExitoGuardado" class="exito" style="display: none;">¡Contraseña guardada con éxito! ✅</p>
     </div>
 
     <script>
@@ -154,6 +154,17 @@
             }).catch(err => {
                 console.error("Error al copiar: ", err);
             });
+        }
+
+        // NUEVA FUNCIÓN: Muestra el mensaje de éxito limpio
+        function mostrarExito() {
+            const mensaje = document.getElementById("mensajeExitoGuardado");
+            mensaje.style.display = "block";
+            
+            // Oculta el mensaje después de 3 segundos
+            setTimeout(() => {
+                mensaje.style.display = "none";
+            }, 3000);
         }
 
         async function generarOpciones() {
@@ -206,6 +217,9 @@
             document.getElementById("req-palabras").innerHTML = `${datos.palabras ? '✅' : '❌'} Evitar palabras comunes u obvias.`;
 
             document.getElementById("btnConfirmar").disabled = !datos.es_valida;
+            
+            // Si el usuario edita la contraseña, ocultamos el mensaje de éxito anterior
+            document.getElementById("mensajeExitoGuardado").style.display = "none";
         }
     </script>
 </body>
