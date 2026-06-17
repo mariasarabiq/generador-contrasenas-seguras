@@ -1,35 +1,44 @@
 import random
 import re
 import string
-import streamlit as st
-from st_keyup import st_keyup
+from flask import Flask, request, jsonify, render_template
 
-# Diccionario de sustituciones comunes para transformar palabras (Leet speak)
+app = Flask(__name__)
+
 SUSTITUCIONES = {
-    "a": ["4", "@"],
-    "e": ["3", "3"],
-    "i": ["1", "!"],
-    "o": ["0", "*"],
-    "u": ["μ", "v"],
-    "s": ["5", "$"],
-    "t": ["7", "+"],
+    "a": ["4", "@"], "e": ["3", "3"], "i": ["1", "!"],
+    "o": ["0", "*"], "u": ["μ", "v"], "s": ["5", "$"], "t": ["7", "+"],
 }
 
 def transformar_palabra(palabra):
-    """Mezcla y reemplaza letras de una palabra con símbolos y números."""
     resultado = ""
     for letra in palabra:
         letra_min = letra.lower()
         if letra_min in SUSTITUCIONES and random.random() > 0.3:
             resultado += random.choice(SUSTITUCIONES[letra_min])
         else:
-            resultado += (
-                letra.upper() if random.random() > 0.5 else letra.lower()
-            )
+            resultado += letra.upper() if random.random() > 0.5 else letra.lower()
     return resultado
 
-def generar_contrasenas(palabra_base):
-    """Genera 3 opciones de contraseñas seguras basadas en una palabra, con exactamente 12 caracteres."""
+@app.route('/')
+def index():
+    # Sirve la página web HTML
+    return render_template('index.html')
+
+@app.route('/generar', methods=['POST'])
+def generar():
+    datos = request.json
+    palabra_usuario = datos.get('palabra', '')
+    
+    lista_palabras = palabra_usuario.strip().split()
+    cantidad_palabras = len(lista_palabras)
+    
+    if cantidad_palabras == 0:
+        return jsonify({"error": "Por favor, escribe una palabra válida."}), 400
+    if cantidad_palabras > 50:
+        return jsonify({"error": f"Has ingresado {cantidad_palabras} palabras. El límite es de 50."}), 400
+
+    palabra_limpia = palabra_usuario.strip().replace(" ", "")
     opciones = []
     mayusculas = string.ascii_uppercase
     minusculas = string.ascii_lowercase
@@ -37,123 +46,49 @@ def generar_contrasenas(palabra_base):
     simbolos = "!,@,#,$,%,&,*_?¿¡"
 
     for _ in range(3):
-        base_segura = transformar_palabra(palabra_base)
-        
-        # Limitamos la base segura a un máximo de 8 caracteres para dejar espacio a los 4 obligatorios
+        base_segura = transformar_palabra(palabra_limpia)
         if len(base_segura) > 8:
             base_segura = base_segura[:8]
 
         relleno = [
-            random.choice(mayusculas),
-            random.choice(minusculas),
-            random.choice(numeros),
-            random.choice(simbolos),
+            random.choice(mayusculas), random.choice(minusculas),
+            random.choice(numeros), random.choice(simbolos),
         ]
 
-        # Si sumando la base y los 4 caracteres obligatorios aún no llega a 12, rellenamos la diferencia
         caracteres_faltantes = 12 - (len(base_segura) + len(relleno))
         if caracteres_faltantes > 0:
             todos_los_caracteres = mayusculas + minusculas + numeros + simbolos
-            relleno += random.choices(
-                todos_los_caracteres, k=caracteres_faltantes
-            )
+            relleno += random.choices(todos_los_caracteres, k=caracteres_faltantes)
 
         random.shuffle(relleno)
         contrasena_final = base_segura + "".join(relleno)
         opciones.append(contrasena_final)
 
-    return opciones
+    return jsonify({"opciones": opciones})
 
-# --- Interfaz Web con Streamlit ---
-st.title("Programa de contraseña segura")
-st.write(
-    "Esta plataforma te ayuda a generar contraseñas robustas y a verificar el nivel de seguridad de tus claves actuales en tiempo real."
-)
-
-st.markdown("---")
-
-# Sección 1: Generador de contraseñas
-st.header("1. Generador de contraseñas seguras")
-palabra_usuario = st.text_input(
-    "Introduce una palabra base (hasta 50 palabras como máximo):",
-    placeholder="Ejemplo: el venado",
-    key="entrada_palabra_base",
-)
-
-boton_generar = st.button("Generar opciones")
-
-if boton_generar:
-    # Separamos la entrada por espacios para contar cuántas palabras ingresó el usuario
-    lista_palabras = palabra_usuario.strip().split()
-    cantidad_palabras = len(lista_palabras)
+@app.route('/validar', methods=['POST'])
+def validar():
+    datos = request.json
+    contrasena = datos.get('contrasena', '')
     
-    if cantidad_palabras == 0:
-        st.warning("Por favor, escribe una palabra válida.")
-    elif cantidad_palabras > 50:
-        st.warning(f"Has ingresado {cantidad_palabras} palabras. El límite es de 50 palabras máximo.")
-    else:
-        # Si pasa la validación, eliminamos los espacios para procesarla como una sola cadena
-        palabra_limpia = palabra_usuario.strip().replace(" ", "")
-        
-        st.subheader("Tus 3 opciones sugeridas:")
-        opciones_generadas = generar_contrasenas(palabra_limpia)
+    palabras_prohibidas = ["password", "contraseña", "123456", "qwerty", "admin"]
+    palabras_ok = False
+    if contrasena:
+        palabras_ok = not any(p in contrasena.lower() for p in palabras_prohibidas)
 
-        for i, opcion in enumerate(opciones_generadas, 1):
-            st.write(f"**Opción {i}:**")
-            st.code(opcion, language="text")
-
-st.markdown("---")
-
-# Sección 2: Validador de contraseñas reactivo
-st.header("2. Analizador y validador de contraseña")
-
-# Usamos st_keyup sin el atributo 'type="password"' para que el texto sea visible siempre
-contrasena_a_probar = st_keyup(
-    "Introduce la contraseña que deseas evaluar:",
-    placeholder="Escribe tu contraseña aquí...",
-    key="entrada_contrasena_evaluar",
-)
-
-# st_keyup puede devolver None si está vacío, lo forzamos a cadena de texto vacía
-if contrasena_a_probar is None:
-    contrasena_a_probar = ""
-
-# Variables de estado para la reactividad
-longitud_ok = len(contrasena_a_probar) >= 12
-mayuscula_ok = bool(re.search(r"[A-Z]", contrasena_a_probar))
-minuscula_ok = bool(re.search(r"[a-z]", contrasena_a_probar))
-numero_ok = bool(re.search(r"[0-9]", contrasena_a_probar))
-simbolo_ok = bool(re.search(r"[!,@,#,$,%,&,*_?¿¡]", contrasena_a_probar))
-
-palabras_prohibidas = ["password", "contraseña", "123456", "qwerty", "admin"]
-# Es válido si tiene texto y no contiene palabras prohibidas
-palabras_ok = False
-if contrasena_a_probar:
-    palabras_ok = not any(p in contrasena_a_probar.lower() for p in palabras_prohibidas)
-
-# Mostrar checklist en tiempo real
-st.write("### Requisitos de seguridad:")
-st.markdown(f"{'✅' if longitud_ok else '❌'} Tener al menos 12 caracteres.")
-st.markdown(f"{'✅' if mayuscula_ok else '❌'} Incluir al menos una letra mayúscula (A-Z).")
-st.markdown(f"{'✅' if minuscula_ok else '❌'} Incluir al menos una letra minúscula (a-z).")
-st.markdown(f"{'✅' if numero_ok else '❌'} Incluir al menos un número (0-9).")
-st.markdown(f"{'✅' if simbolo_ok else '❌'} Incluir al menos un símbolo especial (!, @, #, etc.).")
-st.markdown(f"{'✅' if (contrasena_a_probar and palabras_ok) else '❌'} Evitar el uso de palabras comunes u obvias.")
-
-# Condición global para habilitar el botón
-es_valida = longitud_ok and mayuscula_ok and minuscula_ok and numero_ok and simbolo_ok and palabras_ok
-
-# El botón usa 'disabled' para activarse solo cuando es_valida es True
-boton_evaluar = st.button(
-    "Confirmar y guardar contraseña", 
-    disabled=not es_valida, 
-    type="primary"
-)
-
-if boton_evaluar:
-    st.success("¡Felicidades! Tu contraseña es completamente segura y ha sido validada.")
+    resultados = {
+        "longitud": len(contrasena) >= 12,
+        "mayuscula": bool(re.search(r"[A-Z]", contrasena)),
+        "minuscula": bool(re.search(r"[a-z]", contrasena)),
+        "numero": bool(re.search(r"[0-9]", contrasena)),
+        "simbolo": bool(re.search(r"[!,@,#,$,%,&,*_?¿¡]", contrasena)),
+        "palabras": palabras_ok if contrasena else False
+    }
     
-st.markdown("---")
-st.write(
-    "María Guadalupe Sarabia Velarde"
-)
+    es_valida = all(resultados.values())
+    resultados["es_valida"] = es_valida
+    
+    return jsonify(resultados)
+
+if __name__ == '__main__':
+    app.run(debug=True)
