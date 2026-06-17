@@ -17,9 +17,10 @@
         li { margin: 8px 0; font-size: 0.95em; }
         .alerta { color: red; font-weight: bold; }
         .exito { color: green; font-weight: bold; }
-        .opcion-ver { margin-bottom: 15px; font-size: 0.9em; color: #555; }
         
-        /* NUEVO: Contenedor para la contraseña generada y su botón de copiar */
+        /* NUEVO: Estilo para las instrucciones debajo de los títulos */
+        .instruccion { font-size: 0.9em; color: #666; margin-top: -10px; margin-bottom: 15px; }
+        
         .contenedor-codigo { 
             background: #eee; 
             padding: 10px; 
@@ -28,11 +29,10 @@
             margin: 5px 0 15px 0; 
             border: 1px solid #ddd;
             display: flex;
-            justify-content: space-between; /* Separa el texto del botón a los extremos */
+            justify-content: space-between;
             align-items: center;
         }
 
-        /* NUEVO: Estilo específico para el botón de copiar */
         .btn-copiar {
             background-color: transparent;
             color: #0056b3;
@@ -48,7 +48,6 @@
             color: white;
         }
 
-        /* Estilos del contenedor del ojito */
         .contenedor-input-password {
             position: relative;
             width: 100%;
@@ -89,7 +88,9 @@
 
     <div class="caja">
         <h2>1. Generador de contraseñas seguras</h2>
-        <input type="text" id="palabraBase" placeholder="Introduce una palabra base (máx 50 palabras)...">
+        <p class="instruccion">Introduce una palabra, número o frase base (máximo 50 palabras).</p>
+        
+        <input type="text" id="palabraBase" placeholder="Ejemplo: el venado 2026...">
         <button onclick="generarOpciones()">Generar opciones</button>
         <p id="mensajeGenerador" class="alerta"></p>
         <div id="resultadosGenerador"></div>
@@ -97,6 +98,7 @@
 
     <div class="caja">
         <h2>2. Analizador y validador reactivo</h2>
+        <p class="instruccion">Nota: Solo puedes ingresar hasta 14 caracteres en este campo.</p>
         
         <div class="contenedor-input-password">
             <input type="password" id="contrasenaEvaluar" class="input-con-icono" maxlength="14" placeholder="Escribe tu contraseña aquí..." oninput="validarContrasena()">
@@ -142,12 +144,10 @@
             }
         }
 
-        // NUEVO: Función para copiar el texto al portapapeles y cambiar el botón temporalmente
         function copiarTexto(boton, texto) {
             navigator.clipboard.writeText(texto).then(() => {
                 const textoOriginal = boton.innerHTML;
                 boton.innerHTML = "¡Copiado! ✅";
-                // Regresar el botón a la normalidad después de 2 segundos
                 setTimeout(() => {
                     boton.innerHTML = textoOriginal;
                 }, 2000);
@@ -175,7 +175,6 @@
             if (!respuesta.ok) {
                 mensaje.innerText = datos.error;
             } else {
-                // Modificamos la inyección de HTML para incluir el nuevo contenedor y el botón
                 datos.opciones.forEach((opcion, index) => {
                     divResultados.innerHTML += `
                         <strong>Opción ${index + 1}:</strong> 
