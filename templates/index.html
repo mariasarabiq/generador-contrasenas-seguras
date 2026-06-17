@@ -88,9 +88,10 @@
 
     <div class="caja">
         <h2>Generador de contraseñas seguras</h2>
-        <p class="instruccion">Introduce una palabra, número o frase base (máximo 50 palabras).</p>
+       <p class="instruccion">Introduce una palabra, número o frase base (máximo 50 caracteres).</p>
         
-        <input type="text" id="palabraBase" placeholder="Ejemplo: el venado 2026...">
+        <input type="text" id="palabraBase" maxlength="50" placeholder="Ejemplo: el venado 2026...">
+        <button onclick="generarOpciones()">Generar opciones</button>
         <button onclick="generarOpciones()">Generar opciones</button>
         <p id="mensajeGenerador" class="alerta"></p>
         <div id="resultadosGenerador"></div>
