@@ -1,1 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Seguridad</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; background-color: #f9f9f9; color: #333; }
+        .caja { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        input[type="text"] { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        button { background-color: #0056b3; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin: 8px 0; }
+        .codigo { background: #eee; padding: 10px; border-radius: 4px; font-family: monospace; display: block; margin: 5px 0; }
+        .alerta { color: red; font-weight: bold; }
+        .exito { color: green; font-weight: bold; }
+    </style>
+</head>
+<body>
 
+    <h1>🛡️ Portal de Seguridad</h1>
+    <p>María Guadalupe Sarabia Velarde</p>
+
+    <div class="caja">
+        <h2>1. Generador de contraseñas seguras</h2>
+        <input type="text" id="palabraBase" placeholder="Introduce una palabra base (máx 50 palabras)...">
+        <button onclick="generarOpciones()">Generar opciones</button>
+        <p id="mensajeGenerador" class="alerta"></p>
+        <div id="resultadosGenerador"></div>
+    </div>
+
+    <div class="caja">
+        <h2>2. Analizador y validador reactivo</h2>
+        <input type="text" id="contrasenaEvaluar" placeholder="Escribe tu contraseña aquí..." oninput="validarContrasena()">
+        
+        <h3>Requisitos de seguridad:</h3>
+        <ul>
+            <li id="req-longitud">❌ Tener al menos 12 caracteres.</li>
+            <li id="req-mayuscula">❌ Incluir al menos una letra mayúscula (A-Z).</li>
+            <li id="req-minuscula">❌ Incluir al menos una letra minúscula (a-z).</li>
+            <li id="req-numero">❌ Incluir al menos un número (0-9).</li>
+            <li id="req-simbolo">❌ Incluir al menos un símbolo especial (!, @, #, etc.).</li>
+            <li id="req-palabras">❌ Evitar palabras comunes u obvias.</li>
+        </ul>
+
+        <button id="btnConfirmar" disabled onclick="alert('¡Contraseña guardada con éxito!')">Confirmar y guardar contraseña</button>
+    </div>
+
+    <script>
+        // Función para enviar la palabra al backend de Python
+        async function generarOpciones() {
+            const palabra = document.getElementById("palabraBase").value;
+            const mensaje = document.getElementById("mensajeGenerador");
+            const divResultados = document.getElementById("resultadosGenerador");
+            
+            mensaje.innerText = "";
+            divResultados.innerHTML = "";
+
+            const respuesta = await fetch('/generar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ palabra: palabra })
+            });
+
+            const datos = await respuesta.json();
+
+            if (!respuesta.ok) {
+                mensaje.innerText = datos.error;
+            } else {
+                datos.opciones.forEach((opcion, index) => {
+                    divResultados.innerHTML += `<strong>Opción ${index + 1}:</strong> <span class="codigo">${opcion}</span>`;
+                });
+            }
+        }
+
+        // Función que reacciona con cada letra que escribes (oninput)
+        async function validarContrasena() {
+            const contrasena = document.getElementById("contrasenaEvaluar").value;
+
+            const respuesta = await fetch('/validar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contrasena: contrasena })
+            });
+
+            const datos = await respuesta.json();
+
+            // Actualizamos la interfaz gráfica al instante
+            document.getElementById("req-longitud").innerHTML = `${datos.longitud ? '✅' : '❌'} Tener al menos 12 caracteres.`;
+            document.getElementById("req-mayuscula").innerHTML = `${datos.mayuscula ? '✅' : '❌'} Incluir al menos una letra mayúscula (A-Z).`;
+            document.getElementById("req-minuscula").innerHTML = `${datos.minuscula ? '✅' : '❌'} Incluir al menos una letra minúscula (a-z).`;
+            document.getElementById("req-numero").innerHTML = `${datos.numero ? '✅' : '❌'} Incluir al menos un número (0-9).`;
+            document.getElementById("req-simbolo").innerHTML = `${datos.simbolo ? '✅' : '❌'} Incluir al menos un símbolo especial (!, @, #, etc.).`;
+            document.getElementById("req-palabras").innerHTML = `${datos.palabras ? '✅' : '❌'} Evitar palabras comunes u obvias.`;
+
+            // Habilitamos o deshabilitamos el botón según el resultado
+            document.getElementById("btnConfirmar").disabled = !datos.es_valida;
+        }
+    </script>
+</body>
+</html>
