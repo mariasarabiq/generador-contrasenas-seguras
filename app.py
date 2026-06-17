@@ -2,6 +2,7 @@ import random
 import re
 import string
 import streamlit as st
+from st_keyup import st_keyup
 
 # Diccionario de sustituciones comunes para transformar palabras (Leet speak)
 SUSTITUCIONES = {
@@ -13,6 +14,7 @@ SUSTITUCIONES = {
     "s": ["5", "$"],
     "t": ["7", "+"],
 }
+
 def transformar_palabra(palabra):
     """Mezcla y reemplaza letras de una palabra con símbolos y números."""
     resultado = ""
@@ -26,9 +28,8 @@ def transformar_palabra(palabra):
             )
     return resultado
 
-
 def generar_contrasenas(palabra_base):
-    """Genera 3 opciones de contraseñas seguras basadas en una palabra."""
+    """Genera 3 opciones de contraseñas seguras basadas en una palabra, con exactamente 12 caracteres."""
     opciones = []
     mayusculas = string.ascii_uppercase
     minusculas = string.ascii_lowercase
@@ -37,6 +38,11 @@ def generar_contrasenas(palabra_base):
 
     for _ in range(3):
         base_segura = transformar_palabra(palabra_base)
+        
+        # Limitamos la base segura a un máximo de 8 caracteres para dejar espacio a los 4 obligatorios
+        if len(base_segura) > 8:
+            base_segura = base_segura[:8]
+
         relleno = [
             random.choice(mayusculas),
             random.choice(minusculas),
@@ -44,11 +50,12 @@ def generar_contrasenas(palabra_base):
             random.choice(simbolos),
         ]
 
-        longitud_actual = len(base_segura) + len(relleno)
-        if longitud_actual < 12:
+        # Si sumando la base y los 4 caracteres obligatorios aún no llega a 12, rellenamos la diferencia
+        caracteres_faltantes = 12 - (len(base_segura) + len(relleno))
+        if caracteres_faltantes > 0:
             todos_los_caracteres = mayusculas + minusculas + numeros + simbolos
             relleno += random.choices(
-                todos_los_caracteres, k=(12 - longitud_actual)
+                todos_los_caracteres, k=caracteres_faltantes
             )
 
         random.shuffle(relleno)
@@ -56,7 +63,6 @@ def generar_contrasenas(palabra_base):
         opciones.append(contrasena_final)
 
     return opciones
-
 
 # --- Interfaz Web con Streamlit ---
 st.title("Programa de contraseña segura")
@@ -69,7 +75,7 @@ st.markdown("---")
 # Sección 1: Generador de contraseñas
 st.header("1. Generador de contraseñas seguras")
 palabra_usuario = st.text_input(
-    "Introduce una palabra base (puede ser una palabra común o nombre):",
+    "Introduce una palabra base (hasta 50 palabras como máximo):",
     placeholder="Ejemplo: el venado",
     key="entrada_palabra_base",
 )
@@ -77,11 +83,18 @@ palabra_usuario = st.text_input(
 boton_generar = st.button("Generar opciones")
 
 if boton_generar:
-    palabra_limpia = palabra_usuario.strip().replace(" ", "")
+    # Separamos la entrada por espacios para contar cuántas palabras ingresó el usuario
+    lista_palabras = palabra_usuario.strip().split()
+    cantidad_palabras = len(lista_palabras)
     
-    if len(palabra_limpia) == 0:
+    if cantidad_palabras == 0:
         st.warning("Por favor, escribe una palabra válida.")
+    elif cantidad_palabras > 50:
+        st.warning(f"Has ingresado {cantidad_palabras} palabras. El límite es de 50 palabras máximo.")
     else:
+        # Si pasa la validación, eliminamos los espacios para procesarla como una sola cadena
+        palabra_limpia = palabra_usuario.strip().replace(" ", "")
+        
         st.subheader("Tus 3 opciones sugeridas:")
         opciones_generadas = generar_contrasenas(palabra_limpia)
 
@@ -93,12 +106,17 @@ st.markdown("---")
 
 # Sección 2: Validador de contraseñas reactivo
 st.header("2. Analizador y validador de contraseña")
-contrasena_a_probar = st.text_input(
+
+# Usamos st_keyup sin el atributo 'type="password"' para que el texto sea visible siempre
+contrasena_a_probar = st_keyup(
     "Introduce la contraseña que deseas evaluar:",
-    type="password",
-    placeholder="Escribe tu contraseña y presiona Enter o da clic afuera...",
+    placeholder="Escribe tu contraseña aquí...",
     key="entrada_contrasena_evaluar",
 )
+
+# st_keyup puede devolver None si está vacío, lo forzamos a cadena de texto vacía
+if contrasena_a_probar is None:
+    contrasena_a_probar = ""
 
 # Variables de estado para la reactividad
 longitud_ok = len(contrasena_a_probar) >= 12
@@ -134,8 +152,8 @@ boton_evaluar = st.button(
 
 if boton_evaluar:
     st.success("¡Felicidades! Tu contraseña es completamente segura y ha sido validada.")
+    
 st.markdown("---")
 st.write(
     "María Guadalupe Sarabia Velarde"
 )
-
