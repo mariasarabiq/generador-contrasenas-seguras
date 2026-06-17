@@ -7,7 +7,7 @@
     <style>
         body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; background-color: #f9f9f9; color: #333; }
         .caja { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        input[type="text"] { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        input[type="text"], input[type="password"] { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
         button { background-color: #0056b3; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
         button:disabled { background-color: #cccccc; cursor: not-allowed; }
         ul { list-style-type: none; padding: 0; }
@@ -15,11 +15,12 @@
         .codigo { background: #eee; padding: 10px; border-radius: 4px; font-family: monospace; display: block; margin: 5px 0; }
         .alerta { color: red; font-weight: bold; }
         .exito { color: green; font-weight: bold; }
+        .opcion-ver { margin-bottom: 15px; font-size: 0.9em; color: #555; }
     </style>
 </head>
 <body>
 
-    <h1>🛡️ Portal de Seguridad</h1>
+    <h1>Portal de Seguridad</h1>
     <p>María Guadalupe Sarabia Velarde</p>
 
     <div class="caja">
@@ -32,7 +33,13 @@
 
     <div class="caja">
         <h2>2. Analizador y validador reactivo</h2>
-        <input type="text" id="contrasenaEvaluar" placeholder="Escribe tu contraseña aquí..." oninput="validarContrasena()">
+        
+        <div class="opcion-ver">
+            <input type="checkbox" id="checkVerContrasena" onchange="toggleVisibilidad()"> 
+            <label for="checkVerContrasena">👁️ Mostrar contraseña</label>
+        </div>
+
+        <input type="password" id="contrasenaEvaluar" maxlength="14" placeholder="Escribe tu contraseña aquí..." oninput="validarContrasena()">
         
         <h3>Requisitos de seguridad:</h3>
         <ul>
@@ -48,6 +55,18 @@
     </div>
 
     <script>
+        // Función para cambiar entre texto oculto (password) y texto visible (text)
+        function toggleVisibilidad() {
+            const inputContrasena = document.getElementById("contrasenaEvaluar");
+            const checkbox = document.getElementById("checkVerContrasena");
+            
+            if (checkbox.checked) {
+                inputContrasena.type = "text";
+            } else {
+                inputContrasena.type = "password";
+            }
+        }
+
         // Función para enviar la palabra al backend de Python
         async function generarOpciones() {
             const palabra = document.getElementById("palabraBase").value;
